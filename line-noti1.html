@@ -1,0 +1,99 @@
+<script type="text/html" data-template-name="line-notify-api">
+    <div class="form-row">
+        <label for="node-input-name"> <i class="fa fa-tag fa-fw"></i> <span data-i18n="line-notify-api.label.name"></span></label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-creds"> <i class="fa fa-key fa-fw"></i> <span data-i18n="line-notify-api.label.accessToken"></span></label>
+        <input type="text" id="node-input-creds">
+    </div>
+    <div class="form-row">
+        <label for="node-input-message"><i class="fa fa-comment fa-fw"></i> <span data-i18n="line-notify-api.label.message"></span></label>
+        <div style="height: 250px;" class="node-text-editor" id="line-message-editor"></div>
+        <input type="hidden" id="node-input-message">
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('line-notify-api', {
+        category: 'Line',
+        color: '#5ae628',
+        defaults: {
+            name: {
+                value: ""
+            },
+            message: {
+                value: "Hello!😊"
+            },
+            contentType:{
+                value: "message"
+            },  
+            creds: {
+                value: "",
+                type: "linetoken"
+            },
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "light.png",
+        label: function () {
+            return this.name || this._("line-notify-api.line-notify-api");
+        },
+        oneditprepare: function() {
+            this.editor = RED.editor.createEditor({
+                id: 'line-message-editor',
+                mode: 'ace/mode/text',
+                value: $("#node-input-message").val()
+            });
+            this.editor.$blockScrolling = Infinity;
+            this.editor.setOptions({
+                enableBasicAutocompletion: true,
+                enableSnippets: true,
+                enableLiveAutocompletion: true
+            });
+
+            $("#select-contentType option").filter(function() {
+                var v = $("#node-input-contentType").val();
+                toggleType(v);
+                return $(this).val() == v;
+            }).attr('selected', true);
+
+            $("#select-contentType").change(function() {
+                var v = $("#select-contentType option:selected").val();
+                toggleType(v);
+                $("#node-input-contentType").val(v);
+            });
+        },
+        oneditsave: function() {
+            $("#node-input-message").val(this.editor.getValue());
+            delete this.editor;
+        }
+    });
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('linetoken', {
+        category: 'config',
+        defaults: {
+            name: {value:""}
+        },
+        credentials: {
+            accessToken: {},
+        },
+        label: function () {
+            return this.name || this._("linetoken.linetoken");
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="linetoken">
+    <div class="form-row">
+        <label for="node-input-name"> <i class="fa fa-tag fa-fw"></i> <span data-i18n="line-notify-api.label.name"></span></label>
+        <input type="text" id="node-config-input-name" placeholder="Name">
+    </div>
+
+    <div class="form-row">
+      <label for="node-config-input-accessToken"> <span data-i18n="linetoken.label.accessToken"></span></label>
+      <input type="text" id="node-config-input-accessToken" placeholder="token">
+  </div>
+</script>
